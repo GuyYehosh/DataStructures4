@@ -9,7 +9,8 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
     final private double maxLoadFactor;
     private int capacity;
     private HashFunctor<K> hashFunc;
-
+    private LinkedList<Pair<K, V>>[] table;
+    private int size;
 
     /*
      * You should add additional private members as needed.
@@ -24,18 +25,38 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
         this.maxLoadFactor = maxLoadFactor;
         this.capacity = 1 << k;
         this.hashFunc = hashFactory.pickHash(k);
+        table = new LinkedList[capacity];
+        size = 0;
     }
 
     public V search(K key) {
-        throw new UnsupportedOperationException("Replace this by your implementation");
+        LinkedList<Pair<K, V>> l = table[hashFunc.hash(key)];
+        for (Pair<K, V> p : l) {
+            if(p.first().equals(key))
+                return p.second();
+        }
+        return null;
     }
 
     public void insert(K key, V value) {
-        throw new UnsupportedOperationException("Replace this by your implementation");
+        Pair p = new Pair<>(key, value);
+        table[hashFunc.hash(key)].add(p);
+        if(size/capacity > maxLoadFactor)
+            extandTable();
+    }
+
+    public void extandTable()
+    {
+        LinkedList<Pair<K, V>>[] newT = new LinkedList[capacity*2];
+        for (int i = 0; i < capacity; i++)
+            newT[i] = table[i];
+        table = newT;
+        capacity *= 2;
     }
 
     public boolean delete(K key) {
-        throw new UnsupportedOperationException("Replace this by your implementation");
+        boolean b = table[hashFunc.hash(key)].remove(key);
+        return b;
     }
 
     public HashFunctor<K> getHashFunc() {

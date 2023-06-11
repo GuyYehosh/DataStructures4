@@ -9,7 +9,8 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
     final private double maxLoadFactor;
     private int capacity;
     private HashFunctor<K> hashFunc;
-
+    private Pair<K, V>[] table;
+    private int size;
 
     /*
      * You should add additional private members as needed.
@@ -24,18 +25,44 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
         this.maxLoadFactor = maxLoadFactor;
         this.capacity = 1 << k;
         this.hashFunc = hashFactory.pickHash(k);
+        table = new Pair[capacity];
+        size = 0;
     }
-
+    public void extandTable()
+    {
+        Pair<K, V>[] newT = new Pair[capacity*2];
+        for (int i = 0; i < capacity; i++)
+            newT[i] = table[i];
+        table = newT;
+        capacity *= 2;
+    }
     public V search(K key) {
-        throw new UnsupportedOperationException("Replace this by your implementation");
+        int index = hashFunc.hash(key);
+        while(table[index] != null && table[index].first() != key)
+            index = (index + 1) % capacity;
+        if(table[index] == null)
+            return null;
+        return table[index].second();
     }
 
     public void insert(K key, V value) {
-        throw new UnsupportedOperationException("Replace this by your implementation");
+        Pair p = new Pair<>(key, value);
+        int index = hashFunc.hash(key);
+        while(table[index] != null)
+            index = (index + 1) % capacity;
+        table[index] = p;
+        if(size/capacity > maxLoadFactor)
+            extandTable();
     }
 
     public boolean delete(K key) {
-        throw new UnsupportedOperationException("Replace this by your implementation");
+        int index = hashFunc.hash(key);
+        while(table[index] != null && table[index].first() != key)
+            index = (index + 1) % capacity;
+        if(table[index] == null)
+            return false;
+        table[index] = null;
+        return  true;
     }
 
     public HashFunctor<K> getHashFunc() {
