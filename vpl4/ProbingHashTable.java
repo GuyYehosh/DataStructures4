@@ -51,6 +51,7 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
         while(table[index] != null)
             index = (index + 1) % capacity;
         table[index] = p;
+        size++;
         if(size/capacity > maxLoadFactor)
             extandTable();
     }
@@ -62,6 +63,7 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
         if(table[index] == null)
             return false;
         table[index] = null;
+        size--;
         return  true;
     }
 

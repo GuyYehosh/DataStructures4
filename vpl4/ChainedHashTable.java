@@ -26,6 +26,8 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
         this.capacity = 1 << k;
         this.hashFunc = hashFactory.pickHash(k);
         table = new LinkedList[capacity];
+        for(int i = 0; i < table.length; i++)
+            table[i] = new LinkedList<>();
         size = 0;
     }
 
@@ -41,6 +43,7 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
     public void insert(K key, V value) {
         Pair p = new Pair<>(key, value);
         table[hashFunc.hash(key)].add(p);
+        size++;
         if(size/capacity > maxLoadFactor)
             extandTable();
     }
@@ -56,6 +59,8 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
 
     public boolean delete(K key) {
         boolean b = table[hashFunc.hash(key)].remove(key);
+        if(b)
+            size--;
         return b;
     }
 
