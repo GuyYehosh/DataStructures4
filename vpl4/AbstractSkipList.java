@@ -8,13 +8,15 @@ abstract public class AbstractSkipList {
 
     public AbstractSkipList() {
         head = new Node(Integer.MIN_VALUE);
+        head.sentinel();
         tail = new Node(Integer.MAX_VALUE);
+        tail.sentinel();
         increaseHeight();
     }
 
     public void increaseHeight() {
-        head.addLevel(tail, null);
-        tail.addLevel(null, head);
+        head.addLevel(tail, null, -1);
+        tail.addLevel(null, head, -1);
     }
 
     abstract Node find(int key);
@@ -40,15 +42,21 @@ abstract public class AbstractSkipList {
         }
 
         Node newNode = new Node(key);
-
+        int stepsBack = 0; //+
         for (int level = 0; level <= nodeHeight && prevNode != null; ++level) {
+
             Node nextNode = prevNode.getNext(level);
 
-            newNode.addLevel(nextNode, prevNode);
+            newNode.addLevel(nextNode, prevNode, stepsBack);
+
             prevNode.setNext(level, newNode);
             nextNode.setPrev(level, newNode);
 
+            if(!nextNode.IsSentinel()) //+
+                nextNode.setSkip(nextNode.getSkips(level) - stepsBack, level); //+
+
             while (prevNode != null && prevNode.height() == level) {
+                stepsBack += prevNode.getSkips(level)+1;
                 prevNode = prevNode.getPrev(level);
             }
         }
@@ -62,6 +70,8 @@ abstract public class AbstractSkipList {
             Node next = node.getNext(level);
             prev.setNext(level, next);
             next.setPrev(level, prev);
+            if(!next.IsSentinel()) //+
+                next.setSkip(next.getSkips(level)+ node.getSkips(level), level); //+
         }
 
         return true;
@@ -98,7 +108,7 @@ abstract public class AbstractSkipList {
         while (curr != tail) {
             s.append(curr.key);
             s.append("    ");
-            
+
             curr = curr.getNext(level);
         }
 
@@ -121,13 +131,37 @@ abstract public class AbstractSkipList {
         final private List<Node> prev;
         private int height;
         final private int key;
+        private List<Integer> skips; //+
+        private boolean isSentinel; //+
+
 
         public Node(int key) {
             next = new ArrayList<>();
             prev = new ArrayList<>();
             this.height = -1;
             this.key = key;
+            this.skips = new ArrayList<Integer>(); //+
+            isSentinel = false; //+
         }
+
+        public int getSkips(int level) //+
+        {
+            return skips.get(level);
+        }
+
+        public void addSkip(int skip) //+
+        {
+            this.skips.add(skip);
+        }
+
+        public void setSkip(int skip , int level) //+
+        {
+            this.skips.set(level, skip);
+        }
+
+        public boolean IsSentinel(){return this.isSentinel;} //+
+
+        public void sentinel(){this.isSentinel =true;} //+
 
         public Node getPrev(int level) {
             if (level > height) {
@@ -161,10 +195,11 @@ abstract public class AbstractSkipList {
             this.prev.set(level, prev);
         }
 
-        public void addLevel(Node next, Node prev) {
+        public void addLevel(Node next, Node prev, int stepsBack) {
             ++height;
             this.next.add(next);
             this.prev.add(prev);
+            this.addSkip(stepsBack); //+
         }
 
         public int height() { return height; }

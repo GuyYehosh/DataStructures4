@@ -11,8 +11,8 @@ public class IndexableSkipList extends AbstractSkipList {
     {
         Node ptr = this.head;
         for (int level = ptr.height() ; level>=0 ; level--)
-           while(ptr.getNext(level)!=null && ptr.getNext(level).key()<=val)
-               ptr=ptr.getNext(level);
+            while(ptr.getNext(level)!=null && ptr.getNext(level).key()<=val)
+                ptr=ptr.getNext(level);
         return ptr;
     }
 
@@ -20,17 +20,41 @@ public class IndexableSkipList extends AbstractSkipList {
     public int generateHeight()//l
     {
         int height=0;
-        Random r = new Random();
-        while(Math.random()>=this.probability)
+        while(Math.random()>=this.probability)//>= becaue Math.random is in range [0,1)
             height+=1;
         return height+1;//including
     }
 
     public int rank(int val) {
-        throw new UnsupportedOperationException("Replace this by your implementation");
+        Node infimum = find(val);
+        Node prev = infimum.getPrev(0);
+        if(prev == null)
+            return 0;
+        int rank = 0 ;
+        for(int level=0 ; level<=this.head.height() ; level++)
+        {
+            while(prev.getPrev(level)!=null && prev.height() == level)
+            {
+                rank+=prev.getSkips(level);
+                prev = prev.getPrev(level);
+                rank+=1;
+            }
+        }
+
+        return rank+1;
     }
 
     public int select(int index) {
-        throw new UnsupportedOperationException("Replace this by your implementation");
+        int i=0;
+        Node iterator = this.head;
+        for(int height = this.head.height() ; height>=0 ; height--)
+        {
+            while(iterator.getNext(height)!=null && !iterator.getNext(height).IsSentinel() && i+iterator.getNext(height).getSkips(height)+1<=index)
+            {
+                i+=iterator.getNext(height).getSkips(height)+1;
+                iterator = iterator.getNext(height);
+            }
+        }
+        return iterator.key();
     }
 }
