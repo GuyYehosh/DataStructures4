@@ -30,13 +30,16 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
     }
     public void extandTable()
     {
-        Pair<K, V>[] newT = new Pair[capacity*2];
+        Pair<K, V>[] temp = table;
+        table = new Pair[capacity*2];
         for (int i = 0; i < capacity; i++)
-            newT[i] = table[i];
-        table = newT;
+            if(temp[i] != null)
+                insert(temp[i].first(), temp[i].second());
         capacity *= 2;
     }
     public V search(K key) {
+        if (key == null)
+            return null;
         int index = hashFunc.hash(key);
         while(table[index] != null && table[index].first() != key)
             index = (index + 1) % capacity;

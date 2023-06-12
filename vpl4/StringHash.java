@@ -3,20 +3,17 @@ import java.util.List;
 import java.util.Random;
 
 public class StringHash implements HashFactory<String> {
-    List<Functor> funcs;
+    Functor[] func;
     public StringHash() {
-        funcs = new ArrayList<Functor>();
+        func = new Functor[5];
     }
 
     @Override
     public HashFunctor<String> pickHash(int k) {
-        funcs.add(new Functor(k));
-        funcs.add(new Functor(k));
-        funcs.add(new Functor(k));
-        funcs.add(new Functor(k));
-        funcs.add(new Functor(k));
-        Random rand = new Random();
-        return funcs.get(rand.nextInt(0,funcs.size()));
+        Random random = new Random();
+        for(int i = 0; i < 5; i++)
+            func[i] = new Functor(k);
+        return func[random.nextInt(0, 5)];
     }
 
     public class Functor implements HashFunctor<String> {
@@ -30,7 +27,7 @@ public class StringHash implements HashFactory<String> {
             q = rand.nextInt(Integer.MAX_VALUE / 2, Integer.MAX_VALUE) + 1;
             c = rand.nextInt(2, q);
             ModularHash m = new ModularHash();
-            carterWegmanHash = m.pickHash(q) ;
+            carterWegmanHash = m.pickHash(k) ;
         }
         @Override
         public int hash(String key) {
@@ -39,7 +36,7 @@ public class StringHash implements HashFactory<String> {
             {
                 ans += HashingUtils.mod((int)(key.charAt(i) * HashingUtils.fastModularPower(c, key.length() - i, q)), q);
             }
-            return HashingUtils.mod(ans, q);
+            return carterWegmanHash.hash(HashingUtils.mod(ans, q));
         }
 
         public int c() {

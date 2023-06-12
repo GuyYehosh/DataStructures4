@@ -3,20 +3,17 @@ import java.util.List;
 import java.util.Random;
 
 public class MultiplicativeShiftingHash implements HashFactory<Long> {
-    List<Functor> funcs;
+    Functor[] func;
     public MultiplicativeShiftingHash() {
-        funcs = new LinkedList<Functor>();
+        func = new Functor[5];
     }
 
     @Override
     public HashFunctor<Long> pickHash(int k) {
-        Random rand = new Random();
-        funcs.add(new Functor((long)Math.pow(2,k)));
-        funcs.add(new Functor((long)Math.pow(2,k)));
-        funcs.add(new Functor((long)Math.pow(2,k)));
-        funcs.add(new Functor((long)Math.pow(2,k)));
-        funcs.add(new Functor((long)Math.pow(2,k)));
-        return funcs.get(rand.nextInt(0,funcs.size()));
+        Random random = new Random();
+        for(int i = 0; i < 5; i++)
+            func[i] = new Functor(k);
+        return func[random.nextInt(0, 5)];
     }
 
     public class Functor implements HashFunctor<Long> {
@@ -34,9 +31,9 @@ public class MultiplicativeShiftingHash implements HashFactory<Long> {
         @Override
         public int hash(Long key) {
             long ans = key*a();
-            ans = (long)(ans % Math.pow(2,WORD_SIZE));
-            ans = (long)(ans / Math.pow(2,WORD_SIZE-k()));
-            return (int)ans;
+            ans = (HashingUtils.mod(ans , (long)Math.pow(2,WORD_SIZE)));
+            int toRet = ((int)ans / (int)Math.pow(2,WORD_SIZE-k()));
+            return toRet;
         }
 
         public long a() {

@@ -1,20 +1,16 @@
 import java.util.*;
 
 public class ModularHash implements HashFactory<Integer> {
-    List<Functor> funcs;
+    Functor[] func;
     public ModularHash() {
-        funcs = new LinkedList<Functor>();
-
+        func = new Functor[5];
     }
     @Override
     public HashFunctor<Integer> pickHash(int k) {
-        funcs.add(new Functor((int)Math.pow(2,k)));
-        funcs.add(new Functor((int)Math.pow(2,k)));
-        funcs.add(new Functor((int)Math.pow(2,k)));
-        funcs.add(new Functor((int)Math.pow(2,k)));
-        funcs.add(new Functor((int)Math.pow(2,k)));
-        Random rand = new Random();
-        return funcs.get(rand.nextInt(0,funcs.size()));
+        Random random = new Random();
+        for(int i = 0; i < 5; i++)
+            func[i] = new Functor((int)Math.pow(2,k));
+        return func[random.nextInt(0, 5)];
     }
 
     public class Functor implements HashFunctor<Integer> {
@@ -34,7 +30,7 @@ public class ModularHash implements HashFactory<Integer> {
         }
         @Override
         public int hash(Integer key) {
-            long ans = (((long)a()*key + b()) % p()) % m();
+            long ans = HashingUtils.mod(HashingUtils.mod(((long)a()*key + b()) , p()) , m());
             return (int)ans;
         }
 

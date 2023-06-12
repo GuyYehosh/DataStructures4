@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -33,7 +34,10 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
 
     public V search(K key) {
         LinkedList<Pair<K, V>> l = table[hashFunc.hash(key)];
-        for (Pair<K, V> p : l) {
+        Iterator<Pair<K, V>> it = l.iterator();
+        while(it.hasNext())
+        {
+            Pair<K, V> p = it.next();
             if(p.first().equals(key))
                 return p.second();
         }
@@ -50,10 +54,12 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
 
     public void extandTable()
     {
-        LinkedList<Pair<K, V>>[] newT = new LinkedList[capacity*2];
+        LinkedList<Pair<K, V>>[] temp = table;
+        table = new LinkedList[capacity*2];
+        hashFunc = hashFactory.pickHash(capacity*2);
         for (int i = 0; i < capacity; i++)
-            newT[i] = table[i];
-        table = newT;
+            for (Pair<K, V> p : temp[i])
+                insert(p.first(), p.second());
         capacity *= 2;
     }
 
