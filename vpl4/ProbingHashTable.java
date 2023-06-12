@@ -11,6 +11,7 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
     private HashFunctor<K> hashFunc;
     private Pair<K, V>[] table;
     private int size;
+    private int k;
 
     /*
      * You should add additional private members as needed.
@@ -24,6 +25,7 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
         this.hashFactory = hashFactory;
         this.maxLoadFactor = maxLoadFactor;
         this.capacity = 1 << k;
+        this.k = k;
         this.hashFunc = hashFactory.pickHash(k);
         table = new Pair[capacity];
         size = 0;
@@ -32,6 +34,8 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
     {
         Pair<K, V>[] temp = table;
         table = new Pair[capacity*2];
+        k++;
+        hashFunc = hashFactory.pickHash(k);
         for (int i = 0; i < capacity; i++)
             if(temp[i] != null)
                 insert(temp[i].first(), temp[i].second());
@@ -55,7 +59,7 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
             index = (index + 1) % capacity;
         table[index] = p;
         size++;
-        if(size/capacity > maxLoadFactor)
+        if((double)size/capacity > maxLoadFactor)
             extandTable();
     }
 

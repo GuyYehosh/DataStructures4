@@ -12,7 +12,7 @@ public class HashingExperimentUtils {
             long t1 = 0;
             int cap = cht.capacity();
             LinkedList<Integer> l = new LinkedList<Integer>();
-            while((cht.size() + 1)/ cap < maxLoadFactor)
+            while(((double)cht.size() + 1)/ cap < maxLoadFactor)
             {
                 int x = random.nextInt(0, cht.capacity());
                 long temp = System.nanoTime();
@@ -52,7 +52,7 @@ public class HashingExperimentUtils {
             long t1 = 0;
             int cap = pht.capacity();
             LinkedList<Integer> l = new LinkedList<Integer>();
-            while((pht.size() + 1)/ cap < maxLoadFactor) {
+            while(((double)pht.size() + 1)/ cap < maxLoadFactor) {
                 int x = random.nextInt(0, pht.capacity());
                 long temp = System.nanoTime();
                 pht.insert(x, 99);
@@ -92,7 +92,7 @@ public class HashingExperimentUtils {
             long t1 = 0;
             int cap = cht.capacity();
             List<Long> l = Arrays.stream(h.genUniqueLong(cap)).toList();
-            while((cht.size() + 1)/ cap < 1) {
+            while((double)(cht.size() + 1)/ cap < 1) {
                 long x = l.get(random.nextInt(0, cap));
                 long temp = System.nanoTime();
                 cht.insert(x, 99);
@@ -175,7 +175,7 @@ public class HashingExperimentUtils {
         p = measureOperationsProbing(0.9375);
         System.out.println(p.first());
         System.out.println(p.second());
-        System.out.println("chaining:(1/2,3/4,7/8,15/16)");
+        System.out.println("chaining:(1/2,3/4,1,3/2, 2)");
         p = measureOperationsChained(0.5);
         System.out.println(p.first());
         System.out.println(p.second());
@@ -191,6 +191,7 @@ public class HashingExperimentUtils {
         p = measureOperationsChained(2);
         System.out.println(p.first());
         System.out.println(p.second());
+        System.out.println("------");
         p = measureLongOperations();
         System.out.println(p.first());
         System.out.println(p.second());
