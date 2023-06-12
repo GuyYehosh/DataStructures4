@@ -1,7 +1,3 @@
-import java.util.List;
-import java.util.LinkedList;
-import java.util.ArrayList;
-
 public class ProbingHashTable<K, V> implements HashTable<K, V> {
     final static int DEFAULT_INIT_CAPACITY = 4;
     final static double DEFAULT_MAX_LOAD_FACTOR = 0.75;
@@ -30,23 +26,28 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
         table = new Pair[capacity];
         size = 0;
     }
-    public void extandTable()
+    public void rehash()
     {
-        Pair<K, V>[] temp = table;
-        table = new Pair[capacity*2];
-        k++;
+        Pair<K, V>[] temp = new Pair[capacity];
+        for(int i = 0; i < capacity; i++) {
+            temp[i] = table[i];
+        }
+        k+=1;
+        capacity = 1 << k;
         hashFunc = hashFactory.pickHash(k);
-        for (int i = 0; i < capacity; i++)
+        table = new Pair[capacity];
+        size = 0;
+        for (int i = 0; i < temp.length; i++)
             if(temp[i] != null)
                 insert(temp[i].first(), temp[i].second());
-        capacity *= 2;
+
     }
     public V search(K key) {
         if (key == null)
             return null;
         int index = hashFunc.hash(key);
         while(table[index] != null && table[index].first() != key)
-            index = (index + 1) % capacity;
+            index = HashingUtils.mod(index + 1 , capacity);
         if(table[index] == null)
             return null;
         return table[index].second();
@@ -56,17 +57,17 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
         Pair p = new Pair<>(key, value);
         int index = hashFunc.hash(key);
         while(table[index] != null)
-            index = (index + 1) % capacity;
+            index = HashingUtils.mod(index + 1 , capacity);
         table[index] = p;
-        size++;
-        if((double)size/capacity > maxLoadFactor)
-            extandTable();
+        size+=1;
+        if((double)size/capacity >= maxLoadFactor)
+            rehash();
     }
 
     public boolean delete(K key) {
         int index = hashFunc.hash(key);
         while(table[index] != null && table[index].first() != key)
-            index = (index + 1) % capacity;
+            index = HashingUtils.mod(index + 1 , capacity);
         if(table[index] == null)
             return false;
         table[index] = null;

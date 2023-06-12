@@ -1,7 +1,5 @@
 import java.util.Iterator;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class ChainedHashTable<K, V> implements HashTable<K, V> {
     final static int DEFAULT_INIT_CAPACITY = 4;
@@ -10,7 +8,7 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
     final private double maxLoadFactor;
     private int capacity;
     private HashFunctor<K> hashFunc;
-    private LinkedList<Pair<K, V>>[] table;
+    private ArrayList<Pair<K, V>>[] table;
     private int size;
     private int k;
 
@@ -28,14 +26,14 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
         this.capacity = 1 << k;
         this.k = k;
         this.hashFunc = hashFactory.pickHash(k);
-        table = new LinkedList[capacity];
+        table = new ArrayList[capacity];
         for(int i = 0; i < table.length; i++)
-            table[i] = new LinkedList<>();
+            table[i] = new ArrayList<Pair<K, V>>();
         size = 0;
     }
 
     public V search(K key) {
-        LinkedList<Pair<K, V>> l = table[hashFunc.hash(key)];
+        ArrayList<Pair<K, V>> l = table[hashFunc.hash(key)];
         Iterator<Pair<K, V>> it = l.iterator();
         while(it.hasNext())
         {
@@ -49,24 +47,37 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
     public void insert(K key, V value) {
         Pair p = new Pair<>(key, value);
         table[hashFunc.hash(key)].add(p);
-        size++;
-        if((double)size/capacity > maxLoadFactor)
-            extandTable();
+        size+=1;
+        if((double)size/capacity >= maxLoadFactor)
+            rehash();
     }
 
-    public void extandTable()
+    public void rehash()
     {
-        LinkedList<Pair<K, V>>[] temp = table;
-        table = new LinkedList[capacity*2];
-        hashFunc = hashFactory.pickHash(k+1);
-        for (int i = 0; i < capacity; i++)
-            for (Pair<K, V> p : temp[i])
-                insert(p.first(), p.second());
-        capacity *= 2;
+        ArrayList<Pair<K , V>> tempList = new ArrayList<>();
+        for(ArrayList<Pair<K , V>> l: this.table)
+        {
+            tempList.addAll(l);
+        }
+        k+=1;
+        capacity = (int)Math.pow(2 , k);
+        this.table = new ArrayList[this.capacity];
+        for(int i = 0; i < table.length; i++)
+            table[i] = new ArrayList<>();
+        this.hashFunc = hashFactory.pickHash(k);
+        this.size = 0;
+        for (Pair<K, V> p : tempList)
+            this.insert(p.first() , p.second());
     }
 
     public boolean delete(K key) {
-        boolean b = table[hashFunc.hash(key)].remove(key);
+        Pair<K, V> toRem = new Pair<>(key, search(key));
+        ArrayList<Pair<K, V>> l = table[hashFunc.hash(key)];
+        for (Pair<K, V> p : l) {
+            if(p.first().equals(key))
+                toRem = p;
+        }
+        boolean b = table[hashFunc.hash(key)].remove(toRem);
         if(b)
             size--;
         return b;

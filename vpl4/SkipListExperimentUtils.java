@@ -104,8 +104,8 @@ public class SkipListExperimentUtils {
 
     public static void Task2_2()
     {
-        //p ∈ {0.33, 0.5, 0.75, 0.9}
-        //x ∈ {10, 100, 1000, 10000}
+        //p belongs {0.33, 0.5, 0.75, 0.9}
+        //x belongs {10, 100, 1000, 10000}
 
         long start = System.currentTimeMillis();
 
@@ -136,8 +136,8 @@ public class SkipListExperimentUtils {
 
     public static void question2_6()
     {
-        //Fill the following table for each p ∈ {0.33, 0.5, 0.75, 0.9} with the average of 30
-        //experiments for each value of x ∈ {1000, 2500, 5000, 10000, 15000, 20000, 50000}:
+        //Fill the following table for each p belongs {0.33, 0.5, 0.75, 0.9} with the average of 30
+        //experiments for each value of x belongs {1000, 2500, 5000, 10000, 15000, 20000, 50000}:
         DecimalFormat df2 = new DecimalFormat("0.00");
         DecimalFormat df4 = new DecimalFormat("0.0000");
         DecimalFormat df6 = new DecimalFormat("0.000000");
